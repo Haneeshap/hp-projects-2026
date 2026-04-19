@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { sampleJobs } from '../data/sampleJobs'
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000'
 export default function SearchBar({
   q,
   setQ,
@@ -31,14 +33,101 @@ export default function SearchBar({
   datePostedDays?: number
   setDatePostedDays: (v?: number) => void
 }) {
+  const [suggestions, setSuggestions] = useState<Array<{ id: string; label: string }>>([])
+  const [open, setOpen] = useState(false)
+  const debounceRef = useRef<number | null>(null)
+  const wrapperRef = useRef<HTMLDivElement | null>(null)
+
+  const normalizedQuery = q.trim().toLowerCase()
+
+  useEffect(() => {
+    if (debounceRef.current) window.clearTimeout(debounceRef.current)
+    if (!normalizedQuery) {
+      setSuggestions([])
+      setOpen(false)
+      return
+    }
+
+    debounceRef.current = window.setTimeout(async () => {
+      // try backend suggestions
+      try {
+        const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(normalizedQuery)}`)
+        if (res.ok) {
+          const data: Array<{ id: string; label: string }> = await res.json()
+          setSuggestions(data)
+          setOpen(data.length > 0)
+          return
+        }
+      } catch (e) {
+        // ignore and fall back
+      }
+
+      // fallback: client-side fuzzy match
+      const parts = normalizedQuery.split(/\s+/).filter(Boolean)
+      const pool = sampleJobs.map((j) => ({ id: j.id, text: `${j.title} ${j.company} ${j.location}` }))
+      const matches = pool
+        .map((p) => ({ id: p.id, score: parts.reduce((s, ptn) => (p.text.toLowerCase().includes(ptn) ? s + 1 : s), 0) }))
+        .filter((m) => m.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 6)
+      const items = matches.map((m) => {
+        const job = sampleJobs.find((j) => j.id === m.id)!
+        return { id: job.id, label: `${job.title} — ${job.company}` }
+      })
+      setSuggestions(items)
+      setOpen(items.length > 0)
+    }, 250)
+
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current)
+    }
+  }, [normalizedQuery])
+
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('click', onDocClick)
+    return () => document.removeEventListener('click', onDocClick)
+  }, [])
+
+  const onSelect = (label: string) => {
+    setQ(label)
+    setOpen(false)
+  }
+
   return (
     <div className="flex flex-wrap gap-3 items-center">
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Search jobs or companies"
-        className="flex-1 min-w-[200px] border rounded px-3 py-2"
-      />
+      <div className="relative flex-1 min-w-[200px]" ref={wrapperRef}>
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search jobs or companies"
+          className="w-full border rounded px-3 py-2"
+          onFocus={() => { if (suggestions.length) setOpen(true) }}
+        />
+
+        {open && suggestions.length > 0 && (
+          <ul className="absolute z-30 left-0 right-0 bg-white dark:bg-[#0b1220] text-sm rounded shadow mt-1 overflow-hidden border max-h-56 overflow-auto">
+            {suggestions.map((s) => (
+              <li
+                key={s.id}
+                className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer"
+                onMouseDown={(e) => {
+                  // use onMouseDown to avoid blur before click
+                  e.preventDefault()
+                  onSelect(s.label)
+                }}
+              >
+                {s.label}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       <input
         value={location}
         onChange={(e) => setLocation(e.target.value)}

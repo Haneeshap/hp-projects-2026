@@ -4,10 +4,22 @@
 @tailwind utilities;
 
 :root {
-  --bg: linear-gradient(135deg, #000000 0%, #2b2b2b 30%, #ff7a00 100%); /* black -> dark orange */
-  --fg: #f8fafc;
+  /* Light theme (default)
+     - soft light gradient background
+     - dark foreground text
+  */
+  --bg: linear-gradient(135deg, #f8fafc 0%, #e6eef7 40%, #dbeafe 100%);
+  --fg: #0b1220;
   --font-sans: 'Roboto', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial;
   --font-heading: 'Montserrat', 'Roboto', system-ui, -apple-system, 'Segoe UI';
+}
+
+.dark :root,
+.dark:root,
+.dark {
+  /* Dark theme */
+  --bg: linear-gradient(135deg, #000000 0%, #2b2b2b 30%, #ff7a00 100%); /* black -> dark orange */
+  --fg: #f8fafc;
 }
 
 html, body, #root {

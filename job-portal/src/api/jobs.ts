@@ -1,6 +1,8 @@
 import { sampleJobs, Job } from '../data/sampleJobs'
 
-// Enhanced mock API with filtering and simple pagination.
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000'
+
+// Enhanced API wrapper: try backend, fall back to in-memory sampleJobs.
 export async function fetchJobs(query?: {
   q?: string
   location?: string
@@ -12,7 +14,30 @@ export async function fetchJobs(query?: {
   page?: number
   pageSize?: number
 }): Promise<{ results: Job[]; total: number }> {
-  await new Promise((r) => setTimeout(r, 250))
+  // Try backend request first
+  try {
+    const params = new URLSearchParams()
+    if (query?.q) params.set('q', query.q)
+    if (query?.location) params.set('location', query.location)
+    if (query?.type) params.set('type', query.type)
+    if (typeof query?.remote === 'boolean') params.set('remote', String(query.remote))
+    // backend currently ignores salary/date pagination — keep page/pageSize client-side
+    const url = `${API_BASE}/jobs?${params.toString()}`
+    const res = await fetch(url)
+    if (res.ok) {
+      const data: Job[] = await res.json()
+      const total = data.length
+      const page = query?.page && query.page > 0 ? query.page : 1
+      const pageSize = query?.pageSize && query.pageSize > 0 ? query.pageSize : 6
+      const start = (page - 1) * pageSize
+      return { results: data.slice(start, start + pageSize), total }
+    }
+  } catch (e) {
+    // network failed — fall back to local
+  }
+
+  // Fallback: local filtering (previous behavior)
+  await new Promise((r) => setTimeout(r, 120))
   let results = sampleJobs.slice()
   if (query?.q) {
     const q = query.q.toLowerCase()
@@ -48,6 +73,10 @@ export async function fetchJobs(query?: {
 }
 
 export async function getJobById(id: string): Promise<Job | undefined> {
-  await new Promise((r) => setTimeout(r, 150))
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${encodeURIComponent(id)}`)
+    if (res.ok) return (await res.json()) as Job
+  } catch (e) {}
+  await new Promise((r) => setTimeout(r, 120))
   return sampleJobs.find((j) => j.id === id)
 }

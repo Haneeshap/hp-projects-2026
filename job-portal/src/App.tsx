@@ -5,12 +5,13 @@ import JobDetail from './pages/JobDetail'
 import Bookmarks from './pages/Bookmarks'
 import Applications from './pages/Applications'
 import RecruiterDashboard from './pages/RecruiterDashboard'
+import ThemeToggle from './components/ThemeToggle'
 
 export default function App(): JSX.Element {
   return (
     <BrowserRouter>
       <div className="app max-w-7xl mx-auto">
-        <header className="flex items-center justify-start py-6">
+        <header className="flex items-center justify-start py-6 w-full">
           <div className="flex items-center gap-4">
             <Link
               to="/"
@@ -23,6 +24,9 @@ export default function App(): JSX.Element {
             <Link to="/bookmarks" className="uppercase tracking-wider text-sm md:text-base text-white/90 bg-white/10 px-3 py-2 rounded">BOOKMARKS</Link>
             <span className="text-white/70">--</span>
             <Link to="/applications" className="uppercase tracking-wider text-sm md:text-base text-white/90 bg-white/10 px-3 py-2 rounded">APPLICATIONS</Link>
+          </div>
+          <div className="ml-auto">
+            <ThemeToggle />
           </div>
         </header>
 
