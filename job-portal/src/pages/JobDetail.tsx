@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getJobById } from '../api/jobs'
+import { addApplication } from '../utils/applications'
 
 export default function JobDetail(): JSX.Element {
   const { id } = useParams()
@@ -45,8 +46,8 @@ function ApplyForm({ jobId, onDone }: { jobId: string; onDone: () => void }) {
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
-    console.log('Apply', { jobId, name, email, cover })
-    alert('Application submitted (mock)')
+    addApplication({ jobId, name, email, cover, status: 'Applied' })
+    alert('Application submitted')
     onDone()
   }
 
