@@ -5,6 +5,8 @@ import JobDetail from './pages/JobDetail'
 import Bookmarks from './pages/Bookmarks'
 import Applications from './pages/Applications'
 import RecruiterDashboard from './pages/RecruiterDashboard'
+import ResumeBuilder from './pages/ResumeBuilder'
+import Chat from './pages/Chat'
 import ThemeToggle from './components/ThemeToggle'
 
 export default function App(): JSX.Element {
@@ -24,6 +26,10 @@ export default function App(): JSX.Element {
             <Link to="/bookmarks" className="uppercase tracking-wider text-sm md:text-base text-white/90 bg-white/10 px-3 py-2 rounded">BOOKMARKS</Link>
             <span className="text-white/70">--</span>
             <Link to="/applications" className="uppercase tracking-wider text-sm md:text-base text-white/90 bg-white/10 px-3 py-2 rounded">APPLICATIONS</Link>
+            <span className="text-white/70">--</span>
+            <Link to="/resume" className="uppercase tracking-wider text-sm md:text-base text-white/90 bg-white/10 px-3 py-2 rounded">RESUME</Link>
+            <span className="text-white/70">--</span>
+            <Link to="/chat" className="uppercase tracking-wider text-sm md:text-base text-white/90 bg-white/10 px-3 py-2 rounded">CHAT</Link>
           </div>
           <div className="ml-auto">
             <ThemeToggle />
@@ -37,6 +43,8 @@ export default function App(): JSX.Element {
             <Route path="/bookmarks" element={<Bookmarks />} />
             <Route path="/applications" element={<Applications />} />
             <Route path="/recruiter" element={<RecruiterDashboard />} />
+            <Route path="/resume" element={<ResumeBuilder />} />
+            <Route path="/chat" element={<Chat />} />
           </Routes>
         </main>
       </div>

@@ -1,6 +1,7 @@
 import { sampleJobs, Job } from '../data/sampleJobs'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000'
+// Resolve API base without using `import.meta` so tests (Jest/node) can parse this file.
+const API_BASE = (globalThis as any).__VITE_API_BASE__ || (typeof process !== 'undefined' && process.env && (process.env.VITE_API_BASE as string)) || 'http://127.0.0.1:8000'
 
 // Enhanced API wrapper: try backend, fall back to in-memory sampleJobs.
 export async function fetchJobs(query?: {

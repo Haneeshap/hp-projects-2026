@@ -23,3 +23,4 @@ class User(SQLModel, table=True):
     username: str = Field(index=True, unique=True)
     hashed_password: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+

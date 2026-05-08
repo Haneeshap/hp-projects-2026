@@ -39,6 +39,15 @@ export function listApplications(): Application[] {
   return readAll()
 }
 
+export function getApplicationById(id: string): Application | undefined {
+  return readAll().find((a) => a.id === id)
+}
+
+export function deleteApplication(id: string) {
+  const cur = readAll().filter((a) => a.id !== id)
+  saveAll(cur)
+}
+
 export function updateApplicationStatus(id: string, status: Application['status']) {
   const cur = readAll()
   const idx = cur.findIndex((c) => c.id === id)

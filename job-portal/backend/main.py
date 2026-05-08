@@ -2,6 +2,7 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta
+import os
 
 from .db import create_db_and_tables, get_session
 from .models import Job as JobModel, User as UserModel
@@ -123,3 +124,15 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @app.get('/users/me')
 def me(current_user: UserModel = Depends(get_current_user)):
     return {"username": current_user.username, "id": current_user.id}
+
+
+@app.post('/chat/send')
+def chat_send(conversation_id: str, message: str):
+    # server-side chat endpoints removed — chat is handled client-side/local only
+    raise HTTPException(status_code=404, detail="Chat API removed; use in-app local chat")
+
+
+@app.get('/chat/{conversation_id}/messages')
+def chat_messages(conversation_id: str):
+    # server-side chat endpoints removed — chat is handled client-side/local only
+    raise HTTPException(status_code=404, detail="Chat API removed; use in-app local chat")
